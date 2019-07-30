@@ -18,14 +18,7 @@ def mkdir(path):
         os.makedirs(path)
     return path
 
-
-def acquire_time(wav_path):
-    """
-    获取音频时长
-    :param wav_path: 音频路径
-    :return: 音频时长
-    """
-    cmd = "sox --i -D %s" % wav_path
+def exe_command(cmd):
 
     p = subprocess.Popen(
         cmd,  # 使用sox计算音频时长
@@ -36,6 +29,18 @@ def acquire_time(wav_path):
     )
     out = p.stdout.read().decode()
     err = p.stderr.read().decode()
+
+    return out,err
+
+def acquire_time(wav_path):
+    """
+    获取音频时长
+    :param wav_path: 音频路径
+    :return: 音频时长
+    """
+    cmd = "sox --i -D %s" % wav_path
+
+    out,err = exe_command(cmd)
 
     if out and re.match("[0-9.]+", out) and not err:  # 判断sox计算时间是否成功
         wav_time = float(out)

@@ -7,7 +7,7 @@ from multiprocessing import Pool
 import json
 import sys
 
-from func import CreatPTFile, save_to_file, creat_mapping, check_valid, deletedir, uploadpre
+from func import CreatPTFile, save_to_file, creat_mapping, check_valid, deletedir, uploadpre, exe_command
 
 parser = argparse.ArgumentParser(description="生成上平台")
 parser.add_argument("-rootpath", required=True, help="输入项目路径")
@@ -81,21 +81,35 @@ if __name__ == "__main__":
     logger.info("Success!!! 共【%s】包【%s】条音频" % (len(list(result_map.keys())), whsum))
 
     if uposs:
+
         updirpath, amount = uploadpre(project_root, save_upname)
-        logger.info('上传音频完成')
+        logger.info('音频准备完成')
 
         if whsum != amount:
             logger.error(f'音频数【{amount}】与文本数【{whsum}】不对应，请检查！')
+
         else:
 
-            cmd = f'ossutil cp -r -u {updirpath} oss://cn-wav-crowd/{save_upname}'
+            cmd = f'ossutil64 cp -r -u {updirpath} oss://cn-wav-crowd/{save_upname}'
             logger.info(cmd)
             os.system(cmd)
 
             dirname = f'updir_{save_upname}'
             os.chdir(project_root)
-            if os.path.exists(dirname):
-                logger.info(f'删除{dirname}中...')
-                deletedir(dirname)
+
+            cmd = f'ossutil64 ls -s oss://cn-wav-crowd/{save_upname} | grep ".wav" | wc -l'
+            out, err = exe_command(cmd)
+            try:
+                upcount = int(out)
+            except ValueError:
+                logger.error(err)
+                upcount = 0
+
+            if upcount == amount:
+                if os.path.exists(dirname):
+                    logger.info(f'删除{dirname}中...')
+                    deletedir(dirname)
+            else:
+                logger.error('oss 上传发生错误 退出')
 
     logger.info('Done!')
