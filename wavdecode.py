@@ -5,7 +5,7 @@ from loguru import logger
 
 logger.add("log.txt")
 
-parser = argparse.ArgumentParser(description="音频解码")
+parser = argparse.ArgumentParser(description="音频解码 & VAD")
 parser.add_argument("-mdl_type", required=True, help="模型")
 parser.add_argument("-mdl_name", default= None, help="模型名字")
 parser.add_argument("-pjname", type=str, required=True, help="项目名")
@@ -32,7 +32,6 @@ if mdl_name is None:
     mdl_name = project_name
 
 vad_sh = f'python3 local/dataprep.py {project_name} {wavpath};./common_models/vad/vad_buk.sh {project_name} {wavpath}'
-
 data_prepare_py = f"local/dataprep.py {project_name} {wavpath}"
 decode_sh = f"asr_models/{mdl_type}/decode.sh --nj {nj} --graph {mdl_name} {project_name}_seg"
 segment_dir = f"output/{project_name}_seg"
@@ -74,6 +73,7 @@ if __name__ == "__main__":
     if func == "decode":
         run_decode()
         os._exit(0)
+
     elif func == "vad":
         vad()
         os._exit(0)
