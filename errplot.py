@@ -3,11 +3,9 @@
 import numpy as np
 import wave
 import argparse
-from loguru import logger
+from func import logger
 import shutil
 import os
-
-logger.add("log.txt")
 
 parser = argparse.ArgumentParser(description="移动异常波形音频")
 parser.add_argument("-wavpath", required=True, help="音频路径")

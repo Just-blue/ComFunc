@@ -2,7 +2,7 @@ import argparse
 import re
 from multiprocessing import Pool
 import os
-from loguru import logger
+from func import logger
 
 parser = argparse.ArgumentParser(
     description="音频加头 |　降采样",

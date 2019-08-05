@@ -9,7 +9,6 @@ import subprocess
 import wave
 import glob
 import shutil
-
 from loguru import logger
 
 logger.add('log.txt', level='DEBUG')

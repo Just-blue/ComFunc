@@ -2,8 +2,6 @@
 import argparse
 import os
 import re
-
-from loguru import logger
 import json
 import sys
 
@@ -15,6 +13,7 @@ from func import (
     exe_command,
     file_exists,
     wavtime_map,
+    logger
 )
 
 parser = argparse.ArgumentParser(description="生成上平台")
@@ -33,8 +32,6 @@ project_wavs_path = os.path.join(project_root, "wav")
 project_txts_path = os.path.join(project_root, "Mext.ini")
 time_map = os.path.join(project_root, f"timemap_{save_upname}.txt")
 save_upfile = os.path.join(project_root, save_upname + ".txt")
-
-logger.add("log.txt", level="DEBUG")
 
 
 class CreatPTFile:

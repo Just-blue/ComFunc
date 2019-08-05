@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
-from loguru import logger
-
-logger.add("log.txt")
+from func import logger
 
 parser = argparse.ArgumentParser(description="音频解码")
 parser.add_argument("-mdl_type", required=True, help="模型")
