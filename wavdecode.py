@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
-from func import logger
+from func import logger, get_abspath
 
 parser = argparse.ArgumentParser(description="音频解码 & VAD")
 parser.add_argument("pjname", type=str, help="项目名")
@@ -18,7 +18,7 @@ args = parser.parse_args()
 
 nj = args.nj
 func = args.func
-wavpath = args.wavpath
+wavpath = get_abspath(args.wavpath)
 mdl_type = args.mdl_type
 mdl_name = args.mdl_name
 server = args.server
@@ -46,6 +46,7 @@ def vad():
     os.system(vad_sh)
     if not os.path.exists(segment):
         logger.error("vad failed！")
+        os._exit(0)
     else:
         logger.info("vad succsee！")
 

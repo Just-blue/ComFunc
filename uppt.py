@@ -3,7 +3,7 @@ import argparse
 import os
 import re
 
-from func import logger
+from func import logger, get_abspath
 import json
 import sys
 
@@ -24,7 +24,7 @@ parser.add_argument("-name", type=str, required=True, help="文本名字")
 parser.add_argument("-uposs", type=bool, default=True, help="是否上传oss")
 
 args = parser.parse_args()
-project_root = os.path.abspath(args.rootpath)
+project_root = get_abspath(args.rootpath)
 save_upname = args.name
 classify = args.classify
 uposs = args.uposs
