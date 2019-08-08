@@ -3,7 +3,7 @@ import argparse
 import os
 import re
 
-from loguru import logger
+from func import logger
 import json
 import sys
 
@@ -18,8 +18,8 @@ from func import (
 )
 
 parser = argparse.ArgumentParser(description="生成上平台")
-parser.add_argument("rootpath", required=True, help="输入项目路径")
-parser.add_argument("classify", type=int, required=True, help="分包数")
+parser.add_argument("rootpath", help="输入项目路径")
+parser.add_argument("classify", type=int, help="分包数")
 parser.add_argument("-name", type=str, required=True, help="文本名字")
 parser.add_argument("-uposs", type=bool, default=True, help="是否上传oss")
 
@@ -34,7 +34,7 @@ project_txts_path = os.path.join(project_root, "Mext.ini")
 time_map = os.path.join(project_root, f"timemap_{save_upname}.txt")
 save_upfile = os.path.join(project_root, save_upname + ".txt")
 
-logger.add("log.txt", level="DEBUG")
+logger.add(os.path.join(project_root, "log.txt"), level="DEBUG")
 
 
 class CreatPTFile:

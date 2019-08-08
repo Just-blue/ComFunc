@@ -12,7 +12,7 @@ import shutil
 
 from loguru import logger
 
-logger.add('log.txt', level='DEBUG')
+logger.add("/tmp/funclog.txt")
 
 class NotexistError(BaseException):
     def __init__(self, message):
