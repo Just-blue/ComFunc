@@ -11,16 +11,22 @@ import glob
 import shutil
 from loguru import logger
 
-logger.add('log.txt', level='DEBUG')
+logger.add("/tmp/funclog.txt")
+
 
 class NotexistError(BaseException):
     def __init__(self, message):
         super().__init__(message)
         self.message = message
 
+
 def file_exists(filepath):
     if not os.path.exists(filepath):
         raise NotexistError(f'{filepath} 不存在！请创建后重试')
+
+
+def get_abspath(path):
+    return os.path.abspath(path)
 
 
 def mkdir(path):
@@ -28,8 +34,8 @@ def mkdir(path):
         os.makedirs(path)
     return path
 
-def exe_command(cmd):
 
+def exe_command(cmd):
     p = subprocess.Popen(
         cmd,  # 使用sox计算音频时长
         stdout=subprocess.PIPE,
@@ -40,7 +46,8 @@ def exe_command(cmd):
     out = p.stdout.read().decode()
     err = p.stderr.read().decode()
 
-    return out,err
+    return out, err
+
 
 def acquire_time(wav_path):
     """
@@ -50,7 +57,7 @@ def acquire_time(wav_path):
     """
     cmd = "sox --i -D %s" % wav_path
 
-    out,err = exe_command(cmd)
+    out, err = exe_command(cmd)
 
     if out and re.match("[0-9.]+", out) and not err:  # 判断sox计算时间是否成功
         wav_time = float(out)
@@ -82,7 +89,6 @@ def creat_mapping(file, root):
 
 
 def wavtime_map(project_wavs_path):
-
     logger.info(f"构建音频时间映射中！")
     result = []
     dic_map = {}
@@ -105,8 +111,8 @@ def wavtime_map(project_wavs_path):
 
     return dic_map
 
-def check_valid(project_txts_path):
 
+def check_valid(project_txts_path):
     partern = re.compile("[a-zA-Z0-9_]+\t(.*?)\n?")
     with open(project_txts_path, "r", encoding="utf-8") as f:
         for line in f.readlines():
@@ -116,13 +122,16 @@ def check_valid(project_txts_path):
 
     return True
 
+
 def save_to_file(_save_path, wavs_info_map):
     with open(_save_path, "w", encoding="utf-8") as f:
         for key, value in wavs_info_map.items():
             f.write(json.dumps(value, ensure_ascii=False) + "\n")
 
-def copy(filepath,dstpath):
+
+def copy(filepath, dstpath):
     shutil.copy(filepath, dstpath)
+
 
 def copyfiles(originpath, dstpath):
     multiprocessing.freeze_support()
@@ -157,4 +166,4 @@ def uploadpre(rootpath, upname):
 
     amount = len(glob.glob1(updirpath, '*.wav'))
 
-    return updirpath,amount
+    return updirpath, amount
