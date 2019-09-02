@@ -5,6 +5,7 @@ import re
 
 import json
 import sys
+from pathlib import Path
 
 from func import (
     save_to_file,
@@ -15,7 +16,7 @@ from func import (
     file_exists,
     wavtime_map,
     logger,
-    crwavlist)
+    crwavlistpath, copyfiles)
 
 parser = argparse.ArgumentParser(description="生成上平台")
 parser.add_argument("wavpath", help="输入音频文件路径")
@@ -33,14 +34,22 @@ classify = args.classify
 uposs = args.uposs
 fwavlist = args.wavlist
 
-project_root = os.path.dirname(wavpath)
+
+project_root = os.path.dirname(os.path.abspath(wavpath))
 project_wavs_path = os.path.abspath(wavpath)
 project_txts_path = os.path.abspath(txtpath)
 time_map = os.path.join(project_root, f"timemap_{save_upname}.txt")
 save_upfile = os.path.join(project_root, save_upname + ".txt")
-wavlist = crwavlist(fwavlist) if fwavlist else None
 
 logger.add(os.path.join(project_root, "log.txt"), level="DEBUG")
+
+if fwavlist:
+    wavselepath = Path(project_root) / 'selectedwavs'
+    wavselepath.mkdir(exist_ok=True)
+    wavlist = crwavlistpath(fwavlist)
+    copyfiles(project_wavs_path,wavselepath,wavlist)
+    project_wavs_path = wavselepath
+    logger.debug(f'音频目录设置为 {str(wavselepath)}')
 
 
 class CreatPTFile:
@@ -134,7 +143,7 @@ if __name__ == "__main__":
         sys.exit()
 
     if not os.path.exists(time_map):
-        dic_map = wavtime_map(project_wavs_path,wavlist)
+        dic_map = wavtime_map(project_wavs_path)
         with open(time_map, "w", encoding="utf-8") as f:
             json.dump(dic_map, f)
 
@@ -159,7 +168,7 @@ if __name__ == "__main__":
 
     if uposs:
 
-        updirpath, amount = uploadpre(project_root, save_upname)
+        updirpath, amount = uploadpre(project_root, project_wavs_path, save_upname)
         logger.info("音频准备完成")
 
         if whsum != amount:

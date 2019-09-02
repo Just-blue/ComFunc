@@ -9,6 +9,7 @@ import subprocess
 import wave
 import glob
 import shutil
+
 from loguru import logger
 
 logger.add("/tmp/funclog.txt")
@@ -34,11 +35,12 @@ def mkdir(path):
         os.makedirs(path)
     return path
 
-def crwavlist(file):
-    wavlist = set()
-    with open(file,'r') as f:
-        for line in f.readlines():
-            wavlist.add(line.rstrip('\n').rstrip('.wav'))
+def crwavlistpath(wavlistfp):
+
+    wavlist = list()
+    with open(wavlistfp,'r') as f:
+        for wav in f.readlines():
+            wavlist.append(wav.rstrip('\n'))
 
     return wavlist
 
@@ -95,15 +97,14 @@ def creat_mapping(file, root):
     return {file.rstrip(".wav"): time}
 
 
-def wavtime_map(project_wavs_path,wavlist):
+def wavtime_map(project_wavs_path):
     logger.info(f"构建音频时间映射中！")
     result = []
     dic_map = {}
     pool = multiprocessing.Pool(processes=20)
 
     for root, dirs, files in os.walk(project_wavs_path):
-        prepfiles = list(set(files).intersection(set(wavlist))) if wavlist else files
-        for file in prepfiles:
+        for file in files:
             if not file.endswith('wav'):
                 continue
 
@@ -141,17 +142,18 @@ def copy(filepath, dstpath):
     shutil.copy(filepath, dstpath)
 
 
-def copyfiles(originpath, dstpath):
+def copyfiles(originpath, dstpath,wavlist=None):
     multiprocessing.freeze_support()
 
     pool = multiprocessing.Pool(processes=10)
 
     for root, _, files in os.walk(originpath):
-        for file in files:
+        prepfiles = list(set(files).intersection(set(wavlist))) if wavlist else files
+        for file in prepfiles:
             if not file.endswith('wav'):
                 continue
-            filepath = os.path.join(root, file)
 
+            filepath = os.path.join(root, file)
             pool.apply_async(copy, args=(filepath, dstpath))
 
     pool.close()
@@ -163,8 +165,7 @@ def deletedir(path):
     os.system(cmd)
 
 
-def uploadpre(rootpath, upname):
-    wavpath = os.path.join(rootpath, 'wav')
+def uploadpre(rootpath, wavpath,upname):
     if len(glob.glob1(wavpath, '*.wav')) > 50:
         updirpath = wavpath
     else:
