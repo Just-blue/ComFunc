@@ -34,6 +34,13 @@ def mkdir(path):
         os.makedirs(path)
     return path
 
+def crwavlist(file):
+    wavlist = set()
+    with open(file,'r') as f:
+        for line in f.readlines():
+            wavlist.add(line.rstrip('\n').rstrip('.wav'))
+
+    return wavlist
 
 def exe_command(cmd):
     p = subprocess.Popen(
@@ -88,7 +95,7 @@ def creat_mapping(file, root):
     return {file.rstrip(".wav"): time}
 
 
-def wavtime_map(project_wavs_path):
+def wavtime_map(project_wavs_path,wavlist):
     logger.info(f"构建音频时间映射中！")
     result = []
     dic_map = {}
@@ -97,6 +104,9 @@ def wavtime_map(project_wavs_path):
     for root, dirs, files in os.walk(project_wavs_path):
         for file in files:
             if not file.endswith('wav'):
+                continue
+
+            if file.rstrip('.wav') not in wavlist:
                 continue
 
             result.append(

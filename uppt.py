@@ -3,7 +3,6 @@ import argparse
 import os
 import re
 
-from func import logger, get_abspath
 import json
 import sys
 
@@ -15,25 +14,28 @@ from func import (
     exe_command,
     file_exists,
     wavtime_map,
-    logger
-)
+    logger,
+    crwavlist)
 
 parser = argparse.ArgumentParser(description="生成上平台")
 parser.add_argument("rootpath", help="输入项目路径")
 parser.add_argument("classify", type=int, help="分包数")
 parser.add_argument("-name", type=str, required=True, help="文本名字")
 parser.add_argument("-uposs", type=bool, default=True, help="是否上传oss")
+parser.add_argument("-wavlist", default=None, help="wavlist")
 
 args = parser.parse_args()
 project_root = os.path.abspath(args.rootpath)
 save_upname = args.name
 classify = args.classify
 uposs = args.uposs
+fwavlist = args.wavlist
 
 project_wavs_path = os.path.join(project_root, "wav")
 project_txts_path = os.path.join(project_root, "Mext.ini")
 time_map = os.path.join(project_root, f"timemap_{save_upname}.txt")
 save_upfile = os.path.join(project_root, save_upname + ".txt")
+wavlist = crwavlist(fwavlist) if fwavlist else None
 
 logger.add(os.path.join(project_root, "log.txt"), level="DEBUG")
 
@@ -129,7 +131,7 @@ if __name__ == "__main__":
         sys.exit()
 
     if not os.path.exists(time_map):
-        dic_map = wavtime_map(project_wavs_path)
+        dic_map = wavtime_map(project_wavs_path,wavlist)
         with open(time_map, "w", encoding="utf-8") as f:
             json.dump(dic_map, f)
 
