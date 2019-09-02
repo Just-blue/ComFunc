@@ -102,11 +102,9 @@ def wavtime_map(project_wavs_path,wavlist):
     pool = multiprocessing.Pool(processes=20)
 
     for root, dirs, files in os.walk(project_wavs_path):
-        for file in files:
+        prepfiles = list(set(files).intersection(set(wavlist))) if wavlist else files
+        for file in prepfiles:
             if not file.endswith('wav'):
-                continue
-
-            if file.rstrip('.wav') not in wavlist:
                 continue
 
             result.append(

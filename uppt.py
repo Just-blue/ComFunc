@@ -18,21 +18,24 @@ from func import (
     crwavlist)
 
 parser = argparse.ArgumentParser(description="生成上平台")
-parser.add_argument("rootpath", help="输入项目路径")
+parser.add_argument("wavpath", help="输入音频文件路径")
+parser.add_argument("txtpath", help="输入文本路径")
 parser.add_argument("classify", type=int, help="分包数")
 parser.add_argument("-name", type=str, required=True, help="文本名字")
 parser.add_argument("-uposs", type=bool, default=True, help="是否上传oss")
 parser.add_argument("-wavlist", default=None, help="wavlist")
 
 args = parser.parse_args()
-project_root = os.path.abspath(args.rootpath)
+wavpath = args.wavpath
+txtpath = args.txtpath
 save_upname = args.name
 classify = args.classify
 uposs = args.uposs
 fwavlist = args.wavlist
 
-project_wavs_path = os.path.join(project_root, "wav")
-project_txts_path = os.path.join(project_root, "Mext.ini")
+project_root = os.path.dirname(wavpath)
+project_wavs_path = os.path.abspath(wavpath)
+project_txts_path = os.path.abspath(txtpath)
 time_map = os.path.join(project_root, f"timemap_{save_upname}.txt")
 save_upfile = os.path.join(project_root, save_upname + ".txt")
 wavlist = crwavlist(fwavlist) if fwavlist else None
