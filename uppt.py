@@ -47,7 +47,7 @@ if fwavlist:
     wavselepath = Path(project_root) / 'selectedwavs'
     wavselepath.mkdir(exist_ok=True)
     wavlist = crwavlistpath(fwavlist)
-    copyfiles(project_wavs_path,wavselepath,wavlist)
+    copyfiles(project_wavs_path,wavselepath,'move',wavlist)
     project_wavs_path = wavselepath
     logger.debug(f'音频目录设置为 {str(wavselepath)}')
 
