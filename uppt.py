@@ -41,7 +41,6 @@ project_txts_path = os.path.abspath(txtpath)
 time_map = os.path.join(project_root, f"timemap_{save_upname}.txt")
 save_upfile = os.path.join(project_root, save_upname + ".txt")
 
-logger.add(os.path.join(project_root, "log.txt"), level="DEBUG")
 
 if fwavlist:
     wavselepath = Path(project_root) / 'selectedwavs'
