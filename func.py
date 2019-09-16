@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import datetime
 import json
 import multiprocessing
 import os
@@ -9,10 +9,22 @@ import subprocess
 import wave
 import glob
 import shutil
+import logging
 
-from loguru import logger
+logFormatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
-logger.add("/tmp/funclog.txt")
+fileHandler = logging.FileHandler("/tmp/{}.log".format(datetime.datetime.now().strftime('%m_%d')))
+fileHandler.setFormatter(logFormatter)
+fileHandler.setLevel(logging.DEBUG)
+logger.addHandler(fileHandler)
+
+consoleHandler = logging.StreamHandler()
+consoleHandler.setFormatter(logFormatter)
+consoleHandler.setLevel(logging.INFO)
+
+logger.addHandler(consoleHandler)
 
 
 class NotexistError(BaseException):
@@ -35,14 +47,15 @@ def mkdir(path):
         os.makedirs(path)
     return path
 
-def crwavlistpath(wavlistfp):
 
+def crwavlistpath(wavlistfp):
     wavlist = list()
-    with open(wavlistfp,'r') as f:
+    with open(wavlistfp, 'r') as f:
         for wav in f.readlines():
             wavlist.append(wav.rstrip('\n'))
 
     return wavlist
+
 
 def exe_command(cmd):
     p = subprocess.Popen(
@@ -142,8 +155,13 @@ def copy(filepath, dstpath):
     shutil.copy(filepath, dstpath)
 
 
-def copyfiles(originpath, dstpath,wavlist=None):
+def move(filepath, dstpath):
+    shutil.move(filepath, dstpath)
+
+
+def copyfiles(originpath, dstpath, func='copy', wavlist=None):
     multiprocessing.freeze_support()
+    fun = copy if func == 'copy' else move
 
     pool = multiprocessing.Pool(processes=10)
 
@@ -154,10 +172,30 @@ def copyfiles(originpath, dstpath,wavlist=None):
                 continue
 
             filepath = os.path.join(root, file)
-            pool.apply_async(copy, args=(filepath, dstpath))
+            pool.apply_async(fun, args=(filepath, dstpath))
 
     pool.close()
     pool.join()
+
+
+def read_wavtime(wav_path):
+    """
+    获取音频时长
+    :param wav_path: 音频路径
+    :return: 音频时长
+    """
+    with contextlib.closing(wave.open(wav_path, 'r')) as f:
+        frames = f.getnframes()
+        rate = f.getframerate()
+        duration = frames / float(rate)
+    return duration
+
+
+def wavcut(wav_path, outputpath, start, end):
+    cmd = 'sox {0} {1} trim {2} {3}' \
+        .format(str(wav_path), str(outputpath), round(start, 2), round(end - start, 2))
+    logger.debug(cmd)
+    os.popen(cmd)
 
 
 def deletedir(path):
@@ -165,7 +203,7 @@ def deletedir(path):
     os.system(cmd)
 
 
-def uploadpre(rootpath, wavpath,upname):
+def uploadpre(rootpath, wavpath, upname):
     if len(glob.glob1(wavpath, '*.wav')) > 50:
         updirpath = wavpath
     else:
@@ -176,3 +214,4 @@ def uploadpre(rootpath, wavpath,upname):
     amount = len(glob.glob1(updirpath, '*.wav'))
 
     return updirpath, amount
+
